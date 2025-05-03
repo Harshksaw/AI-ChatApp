@@ -2,7 +2,7 @@ import express from 'express';
 import cors from 'cors';
 import { agent } from './agent.js';
 import { addYTVideoToVectorStore } from './embeddings.js';
-
+import 'dotenv/config'; 
 const port = process.env.PORT || 3000;
 
 const app = express();
@@ -13,6 +13,7 @@ app.use(cors());
 app.get('/', (req, res) => {
   res.send('Hello World!');
 });
+  
 
 // curl -X POST http://localhost:3000/generate \
 // -H "Content-Type: application/json" \

@@ -2,9 +2,9 @@ import { OpenAIEmbeddings } from '@langchain/openai';
 import { MemoryVectorStore } from 'langchain/vectorstores/memory';
 import { Document } from '@langchain/core/documents';
 import { RecursiveCharacterTextSplitter } from '@langchain/textsplitters';
-
+import 'dotenv/config';  
 import { PGVectorStore } from '@langchain/community/vectorstores/pgvector';
-
+import 'dotenv/config'; 
 const embeddings = new OpenAIEmbeddings({
   model: 'text-embedding-3-large',
 });
