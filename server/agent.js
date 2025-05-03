@@ -1,52 +1,40 @@
 import { ChatAnthropic } from "@langchain/anthropic";
 import { createAgent } from "@langchain/agents";
 import data from "./data.js";
-import { RecursiveCharacterTextSplitter } from "@langchain/text-splitter";
-import { OpenAI, OpenAIEmbeddings } from "@langchain/openai";
-import { MemoryVectorStore } from "@langchain/vectorstores/memory";
-import {tools} from "@langchain/tools";
-import {z } from zod
+
+import { z } from zod
+import { vectorStore, addYTVideoToVectorStore } from './embeddings.js'
 
 
 const video1 = data[0]
-
-const docs = [new Document({
-    pageContent: video1.transcript,
-    metadata: { videoId: video1.videoId, title: video1.title }
-})]
+await addYTVideoToVectorStore(video1)
 
 
-const splitter = new RecursiveCharacterTextSplitter({
-    chunkSize: 1000,
-    chunkOverlap: 200,
-});
-
-
-const embeddings = new OpenAIEmbeddings({
-    model: 'text-embedding-3-large'
-
-
-})
-
-const vectorStore = new MemoryVectorStore(embeddings)
-
-await vectorStore.addDocuments(docs)
 
 
 //retriev the most relevant chunks
 
-const retrievedDocs = await vectorStore.similaritySearch('what is this spring in', 5)
 
-const retrieverTool = tool(async()=>{
+
+const retrieverTool = tool(async () => {
     console.log("Retrieving docs for query: -----------")
     console.log(query)
+    const retrievedDocs = await vectorStore.similaritySearch(query, 3,
+        { video_id }
+    )
 
-},{
+    const serializedDocs = retrievedDocs.map((doc) => doc.pageContent).join('\n\n')
+    return serializedDocs
+
+
+}, 
+{
     name: 'retriever',
     description: 'retrieves the most relevant chunks from the video transcript of a youtube video',
     schema: z.object({
-        query:
+        query: z.string(),
     }),
+    
 })
 
 
@@ -57,8 +45,9 @@ const llm = new ChatAnthropic({
 
 
 const agent = createAgent({
-    llm, tools: [
-    ]
+    llm, tools: [retrieverTool
+    ],
+    checkpointer
 });
 
 const result = await agent.invoke({
@@ -69,4 +58,7 @@ const result = await agent.invoke({
         }
     ],
 
+}, {
+    configurable: { thread_id: 1 },
 })
+
