@@ -4,6 +4,9 @@ import data from "./data.js";
 import { RecursiveCharacterTextSplitter } from "@langchain/text-splitter";
 import { OpenAI, OpenAIEmbeddings } from "@langchain/openai";
 import { MemoryVectorStore } from "@langchain/vectorstores/memory";
+import {tools} from "@langchain/tools";
+import {z } from zod
+
 
 const video1 = data[0]
 
@@ -34,7 +37,17 @@ await vectorStore.addDocuments(docs)
 
 const retrievedDocs = await vectorStore.similaritySearch('what is this spring in', 5)
 
+const retrieverTool = tool(async()=>{
+    console.log("Retrieving docs for query: -----------")
+    console.log(query)
 
+},{
+    name: 'retriever',
+    description: 'retrieves the most relevant chunks from the video transcript of a youtube video',
+    schema: z.object({
+        query:
+    }),
+})
 
 
 const chunks = await splitter.splitText(docs)
@@ -49,5 +62,11 @@ const agent = createAgent({
 });
 
 const result = await agent.invoke({
+    messages: [
+        {
+            role: 'user',
+            content: 'what is the finish time of Norris'
+        }
+    ],
 
 })
