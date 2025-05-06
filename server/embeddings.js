@@ -25,6 +25,8 @@ export const vectorStore = await PGVectorStore.initialize(embeddings, {
 
 export const addYTVideoToVectorStore = async (videoData) => {
   const { transcript, video_id } = videoData;
+  console.log("🚀 ~ addYTVideoToVectorStore ~ transcript:", transcript)
+  console.log("🚀 ~ addYTVideoToVectorStore ~ video_id:", video_id)
 
   const docs = [
     new Document({
@@ -32,14 +34,17 @@ export const addYTVideoToVectorStore = async (videoData) => {
       metadata: { video_id },
     }),
   ];
+  console.log("🚀 ~ addYTVideoToVectorStore ~ docs:", docs)
 
   // Split the video into chunks
   const splitter = new RecursiveCharacterTextSplitter({
     chunkSize: 1000,
     chunkOverlap: 200,
   });
+  console.log("🚀 ~ addYTVideoToVectorStore ~ splitter:", splitter)
 
   const chunks = await splitter.splitDocuments(docs);
+  console.log("🚀 ~ addYTVideoToVectorStore ~ chunks:", chunks)
 
   await vectorStore.addDocuments(chunks);
 };
