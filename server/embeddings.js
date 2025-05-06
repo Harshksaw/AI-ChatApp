@@ -40,6 +40,7 @@ export const addYTVideoToVectorStore = async (videoData) => {
   });
 
   const chunks = await splitter.splitDocuments(docs);
+  console.log("🚀 ~ addYTVideoToVectorStore ~ chunks:", chunks)
 
   await vectorStore.addDocuments(chunks);
 };
