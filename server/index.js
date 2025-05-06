@@ -42,9 +42,21 @@ app.post('/generate', async (req, res) => {
 });
 
 app.post('/webhook', async (req, res) => {
-  await Promise.all(
-    req.body.map(async (video) => addYTVideoToVectorStore(video))
-  );
+  console.log("🚀 ~ app.post ~ req:", req.body)
+  if (Array.isArray(req.body)) {
+    await Promise.all(
+      req.body.map(async (video) => addYTVideoToVectorStore(video))
+    );
+  } 
+  // If it's a single object 
+  else if (req.body && typeof req.body === 'object') {
+    await addYTVideoToVectorStore(req.body);
+  }
+  // Neither an array nor an object
+  else {
+    console.error('Unexpected webhook payload format:', req.body);
+    return res.status(400).send('Invalid payload format. Expected an array or object.');
+  }
 
   res.send('OK');
 });
